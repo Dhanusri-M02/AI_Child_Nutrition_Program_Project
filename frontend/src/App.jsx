@@ -2,6 +2,7 @@ import { useState } from "react";
 import "./App.css";
 
 function App() {
+  const [sex, setSex] = useState("");
   const [age, setAge] = useState("");
   const [weight, setWeight] = useState("");
   const [height, setHeight] = useState("");
@@ -11,7 +12,6 @@ function App() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     setLoading(true);
     setStatus("");
     setAdvice("");
@@ -23,6 +23,7 @@ function App() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
+          sex: sex,
           age: age,
           weight: weight,
           height: height,
@@ -30,7 +31,6 @@ function App() {
       });
 
       const data = await response.json();
-
       setStatus(data.status);
       setAdvice(data.advice);
     } catch (error) {
@@ -47,6 +47,15 @@ function App() {
 
       <form onSubmit={handleSubmit}>
         <div>
+          <label>Sex (0 = Female, 1 = Male):</label>
+          <input
+            type="number"
+            value={sex}
+            onChange={(e) => setSex(e.target.value)}
+          />
+        </div>
+
+        <div>
           <label>Age:</label>
           <input
             type="number"
@@ -56,7 +65,7 @@ function App() {
         </div>
 
         <div>
-          <label>Weight:</label>
+          <label>Weight (kg):</label>
           <input
             type="number"
             value={weight}
@@ -65,7 +74,7 @@ function App() {
         </div>
 
         <div>
-          <label>Height:</label>
+          <label>Height (cm):</label>
           <input
             type="number"
             value={height}
@@ -78,10 +87,8 @@ function App() {
         </button>
       </form>
 
-      {/* Loader */}
       {loading && <div className="loader"></div>}
 
-      {/* Result */}
       {status && (
         <div className="result">
           <p><strong>Status:</strong> {status}</p>

@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+from routes.auth import auth_bp
 import sys
 import os
 
@@ -12,6 +13,8 @@ from ml.predict import predict_nutrition
 app = Flask(__name__)
 CORS(app)
 
+app.register_blueprint(auth_bp, url_prefix="/auth")
+
 @app.route('/')
 def home():
     return "Child Nutrition AI Backend Running"
@@ -22,13 +25,15 @@ def predict():
     try:
         data = request.get_json()
 
+        sex = int(data.get("sex"))
         age = float(data.get("age"))
         weight = float(data.get("weight"))
         height = float(data.get("height"))
 
         # AI prediction
-        result = predict_nutrition(age, weight, height)
+        result = predict_nutrition(sex, age, weight, height)
 
+        # Calculate BMI for storage
         bmi = weight / ((height / 100) ** 2)
 
         # Save to MySQL
@@ -37,8 +42,8 @@ def predict():
 
         # Insert child
         cursor.execute(
-            "INSERT INTO children (age, weight, height) VALUES (%s, %s, %s)",
-            (age, weight, height)
+            "INSERT INTO children (sex, age, weight, height) VALUES (%s, %s, %s, %s)",
+            (sex, age, weight, height)
         )
         child_id = cursor.lastrowid
 
