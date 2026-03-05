@@ -65,7 +65,7 @@ function Signup() {
 
         <select onChange={(e) => setRole(e.target.value)}>
           <option value="parent">Parent</option>
-          <option value="doctor">Doctor</option>
+          <option value="nutrition_worker">Nutrition Worker</option>
           <option value="admin">Admin</option>
         </select>
 
@@ -80,3 +80,4 @@ function Signup() {
 }
 
 export default Signup;
+

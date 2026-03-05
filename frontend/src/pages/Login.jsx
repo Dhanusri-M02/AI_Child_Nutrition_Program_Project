@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { setUser, getRoleBasedRoute } from "../utils/auth";
 import "../styles/Login.css";
 
 function Login() {
@@ -22,7 +23,17 @@ function Login() {
       const data = await res.json();
 
       if (res.ok) {
-        navigate("/dashboard");
+        // Store user info in localStorage
+        setUser({
+          user_id: data.user_id,
+          name: data.name,
+          email: email,
+          role: data.role
+        });
+        
+        // Route to appropriate dashboard based on role
+        const redirectPath = getRoleBasedRoute(data.role);
+        navigate(redirectPath);
       } else {
         alert(data.message);
       }
@@ -56,10 +67,11 @@ function Login() {
       </form>
 
       <p>
-        Don’t have an account? <Link to="/signup">Signup</Link>
+        Don't have an account? <Link to="/signup">Signup</Link>
       </p>
     </div>
   );
 }
 
 export default Login;
+
