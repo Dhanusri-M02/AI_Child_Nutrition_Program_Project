@@ -1,0 +1,40 @@
+.dashboard-container {
+  width: 350px;
+  margin: 60px auto;
+  padding: 25px;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 0 12px #ccc;
+  text-align: center;
+}
+
+.form-box {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.form-box input {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.form-box button {
+  padding: 10px;
+  background: #4CAF50;
+  color: white;
+  border: none;
+  cursor: pointer;
+  margin-top: 10px;
+  border-radius: 5px;
+}
+
+.result-box {
+  margin-top: 20px;
+  padding: 10px;
+  background: #f0f8ff;
+  border-radius: 6px;
+}

@@ -1,71 +1,87 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from routes.auth import auth_bp
+from db import get_db_connection
 import sys
 import os
 
-from db import get_db_connection
-
-# Add ml folder to path
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from ml.predict import predict_nutrition
 
 app = Flask(__name__)
 CORS(app)
 
-app.register_blueprint(auth_bp, url_prefix="/auth")
 
-@app.route('/')
+@app.route("/")
 def home():
-    return "Child Nutrition AI Backend Running"
+    return "Backend running successfully"
 
 
-@app.route('/predict', methods=['POST'])
-def predict():
+@app.route("/signup", methods=["POST"])
+def signup():
     try:
         data = request.get_json()
 
-        sex = int(data.get("sex"))
-        age = float(data.get("age"))
-        weight = float(data.get("weight"))
-        height = float(data.get("height"))
-
-        # AI prediction
-        result = predict_nutrition(sex, age, weight, height)
-
-        # Calculate BMI for storage
-        bmi = weight / ((height / 100) ** 2)
-
-        # Save to MySQL
         conn = get_db_connection()
         cursor = conn.cursor()
 
-        # Insert child
         cursor.execute(
-            "INSERT INTO children (sex, age, weight, height) VALUES (%s, %s, %s, %s)",
-            (sex, age, weight, height)
-        )
-        child_id = cursor.lastrowid
-
-        # Insert health record
-        cursor.execute(
-            """
-            INSERT INTO health_records (child_id, bmi, status, advice)
-            VALUES (%s, %s, %s, %s)
-            """,
-            (child_id, bmi, result["status"], result["advice"])
+            "INSERT INTO users (name, email, password, role) VALUES (%s, %s, %s, %s)",
+            (data["name"], data["email"], data["password"], data["role"])
         )
 
         conn.commit()
         cursor.close()
         conn.close()
 
-        return jsonify(result)
+        return jsonify({"message": "Signup successful"}), 200
 
     except Exception as e:
-        print("Error:", str(e))
         return jsonify({"error": str(e)}), 500
 
 
-if __name__ == '__main__':
+@app.route("/login", methods=["POST"])
+def login():
+    data = request.get_json()
+
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    cursor.execute(
+        "SELECT * FROM users WHERE email=%s AND password=%s",
+        (data["email"], data["password"])
+    )
+
+    user = cursor.fetchone()
+
+    cursor.close()
+    conn.close()
+
+    if user:
+        return jsonify({"message": "Login successful"}), 200
+    else:
+        return jsonify({"message": "Invalid credentials"}), 401
+
+
+@app.route("/predict", methods=["POST"])
+def predict():
+    try:
+        data = request.get_json()
+
+        result = predict_nutrition(
+            int(data["sex"]),
+            float(data["age"]),
+            float(data["weight"]),
+            float(data["height"])
+        )
+
+        return jsonify(result), 200
+
+    except Exception as e:
+        return jsonify({
+            "status": "Error",
+            "advice": str(e)
+        }), 500
+
+
+if __name__ == "__main__":
     app.run(debug=True)
