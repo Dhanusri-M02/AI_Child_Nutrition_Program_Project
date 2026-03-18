@@ -1,22 +1,30 @@
+# Secure Admin Login with Email OTP & JWT - Progress Tracker
 
-# TODO - User Roles Implementation
+## Completed [x]
+- [x] TODO.md created
+- [x] requirements.txt updated
+- [x] .env created
 
-## Backend Updates
-- [x] 1. Fix app.py - Add bcrypt password hashing and return role/user info in login
-- [x] 2. Add role-based route protection in backend
+## Database [ ]
+- [ ] Add admin_otps table via database_alter.sql
+- [ ] Run ALTER TABLE
 
-## Frontend Updates
-- [x] 3. Create auth utility (frontend/src/utils/auth.js)
-- [x] 4. Update Login.jsx - Store user info and route based on role
-- [x] 5. Create ParentDashboard.jsx
-- [x] 6. Create NutritionWorkerDashboard.jsx  
-- [x] 7. Create AdminDashboard.jsx
-- [x] 8. Update App.jsx with role-based routing
-- [x] 9. Update Signup.jsx - Change "doctor" to "nutrition_worker"
+## Backend [x]
+- [x] Add JWT decorators to app.py
+- [x] Implement OTP flow in routes/auth.py
+- [x] Protect admin routes
+- [ ] Rate limiting setup
 
-## Database
-- [x] Created mysql_commands.sql with all required tables
+## Frontend [x]
+- [x] Update auth.js for JWT
+- [x] Admin login OTP flow
+- [x] Secure API calls
+- [x] ProtectedRoute token check
 
-## COMPLETED - User Roles Implementation Done!
+## Testing [ ]
+- [ ] Install deps & restart backend
+- [ ] Test flows
+- [ ] Complete
 
+**Current Step: Backend implementation [3/6]**
 

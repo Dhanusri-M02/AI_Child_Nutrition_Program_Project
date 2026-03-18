@@ -2,15 +2,25 @@
 import bcrypt
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+from flask_jwt_extended import JWTManager
+from dotenv import load_dotenv
 from db import get_db_connection
 import sys
 import os
+from routes.auth import auth_bp
+from utils import require_admin
 
+load_dotenv()
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from ml.predict import predict_nutrition
 
 app = Flask(__name__)
 CORS(app)
+
+app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')
+jwt = JWTManager(app)
+
+app.register_blueprint(auth_bp)
 
 
 @app.route("/")
@@ -805,6 +815,7 @@ def create_worker_assignment():
 # ============================================
 
 @app.route("/admin/logs", methods=["GET"])
+@require_admin
 def get_system_logs():
     try:
         limit = request.args.get('limit', 100)
@@ -836,6 +847,7 @@ def get_system_logs():
 # ============================================
 
 @app.route("/admin/users", methods=["GET"])
+@require_admin
 def get_all_users():
     try:
         conn = get_db_connection()
@@ -877,6 +889,7 @@ def get_all_parents():
 
 
 @app.route("/admin/users/<int:user_id>", methods=["DELETE"])
+@require_admin
 def delete_user(user_id):
     try:
         conn = get_db_connection()
@@ -895,6 +908,7 @@ def delete_user(user_id):
 
 
 @app.route("/admin/children", methods=["GET"])
+@require_admin
 def get_all_children_admin():
     try:
         conn = get_db_connection()
@@ -918,6 +932,7 @@ def get_all_children_admin():
 
 
 @app.route("/admin/health-records", methods=["GET"])
+@require_admin
 def get_all_health_records_admin():
     try:
         conn = get_db_connection()
@@ -943,6 +958,7 @@ def get_all_health_records_admin():
 
 
 @app.route("/admin/stats", methods=["GET"])
+@require_admin
 def get_stats():
     try:
         conn = get_db_connection()

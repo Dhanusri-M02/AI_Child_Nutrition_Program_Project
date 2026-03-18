@@ -1,7 +1,6 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { getUser, logout, getUserName } from "../utils/auth";
+import { getUser, logout, getUserName, getAuthHeaders } from "../utils/auth";
 import "../styles/Dashboard.css";
 
 function NutritionWorkerDashboard() {
@@ -34,23 +33,24 @@ function NutritionWorkerDashboard() {
   }, []);
 
   const loadData = async () => {
+    const headers = getAuthHeaders();
     try {
       // Load all children
-      const childrenRes = await fetch("http://127.0.0.1:5000/admin/children");
+      const childrenRes = await fetch("http://127.0.0.1:5000/children", { headers });
       if (childrenRes.ok) {
         const childrenData = await childrenRes.json();
         setAllChildren(childrenData);
       }
 
       // Load parents
-      const parentsRes = await fetch("http://127.0.0.1:5000/parents");
+      const parentsRes = await fetch("http://127.0.0.1:5000/children/parents", { headers });
       if (parentsRes.ok) {
         const parentsData = await parentsRes.json();
         setParents(parentsData);
       }
 
       // Load stats
-      const statsRes = await fetch("http://127.0.0.1:5000/admin/stats");
+      const statsRes = await fetch("http://127.0.0.1:5000/children/stats", { headers });
       if (statsRes.ok) {
         const statsData = await statsRes.json();
         setStats(statsData);
@@ -70,10 +70,12 @@ function NutritionWorkerDashboard() {
     setLoading(true);
     setError("");
 
+    const headers = getAuthHeaders();
+    
     try {
       const res = await fetch("http://127.0.0.1:5000/children", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { ...headers, "Content-Type": "application/json" },
         body: JSON.stringify({
           parent_id: parseInt(parentId),
           name: childName,
@@ -136,10 +138,12 @@ function NutritionWorkerDashboard() {
   const handleSaveRecord = async () => {
     if (!selectedChild || !status) return;
 
+    const headers = getAuthHeaders();
+    
     try {
-      await fetch("http://127.0.0.1:5000/health-records", {
+      await fetch("http://127.0.0.1:5000/children/health-records", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { ...headers, "Content-Type": "application/json" },
         body: JSON.stringify({
           child_id: selectedChild.id,
           recorded_by: user.user_id,
@@ -168,9 +172,12 @@ function NutritionWorkerDashboard() {
   const handleDeleteChild = async (childId) => {
     if (!confirm("Are you sure you want to delete this child record?")) return;
     
+    const headers = getAuthHeaders();
+    
     try {
       const res = await fetch(`http://127.0.0.1:5000/children/${childId}`, {
-        method: "DELETE"
+        method: "DELETE",
+        headers
       });
       if (res.ok) {
         alert("Child deleted!");

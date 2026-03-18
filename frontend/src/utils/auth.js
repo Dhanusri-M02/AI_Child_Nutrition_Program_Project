@@ -1,46 +1,57 @@
-// Auth utility functions for handling user authentication and role-based access
+// Auth utility functions for handling JWT token and role-based access
 
+const TOKEN_KEY = 'nutrition_jwt_token';
 const USER_KEY = 'nutrition_user';
 
-// Save user info to localStorage
-export const setUser = (user) => {
+export const setAuthData = (token, user) => {
+  localStorage.setItem(TOKEN_KEY, token);
   localStorage.setItem(USER_KEY, JSON.stringify(user));
 };
 
-// Get user info from localStorage
+export const getJwtToken = () => {
+  return localStorage.getItem(TOKEN_KEY);
+};
+
 export const getUser = () => {
   const userStr = localStorage.getItem(USER_KEY);
   return userStr ? JSON.parse(userStr) : null;
 };
 
-// Get current user role
 export const getUserRole = () => {
   const user = getUser();
   return user ? user.role : null;
 };
 
-// Get current user name
 export const getUserName = () => {
   const user = getUser();
   return user ? user.name : null;
 };
 
-// Check if user is logged in
 export const isAuthenticated = () => {
-  return getUser() !== null;
+  return getJwtToken() !== null;
 };
 
-// Check if user has specific role
+export const isJwtValid = () => {
+  const token = getJwtToken();
+  if (!token) return false;
+  try {
+    // Decode JWT payload (client-side validation)
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return payload.exp * 1000 > Date.now();
+  } catch {
+    return false;
+  }
+};
+
 export const hasRole = (role) => {
   return getUserRole() === role;
 };
 
-// Clear user info (logout)
 export const logout = () => {
+  localStorage.removeItem(TOKEN_KEY);
   localStorage.removeItem(USER_KEY);
 };
 
-// Get redirect path based on role
 export const getRoleBasedRoute = (role) => {
   switch (role) {
     case 'parent':
@@ -53,4 +64,10 @@ export const getRoleBasedRoute = (role) => {
       return '/dashboard';
   }
 };
+
+export const getAuthHeaders = () => {
+  const token = getJwtToken();
+  return token ? { Authorization: `Bearer ${token}` } : {};
+};
+
 

@@ -201,9 +201,7 @@ CREATE TABLE IF NOT EXISTS system_logs (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
 );
 
--- ============================================
--- ADD INDEXES
--- ============================================
+-- ============================================\n-- ADMIN OTP SECURITY TABLE\n-- ============================================\nCREATE TABLE IF NOT EXISTS admin_otps (\n    id INT AUTO_INCREMENT PRIMARY KEY,\n    user_id INT NOT NULL,\n    otp VARCHAR(6) NOT NULL,\n    expires_at DATETIME NOT NULL,\n    attempts INT DEFAULT 0,\n    ip_address VARCHAR(45),\n    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,\n    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,\n    INDEX idx_user_expire (user_id, expires_at)\n);\n\n-- ============================================\n-- ADD INDEXES\n-- ============================================
 CREATE INDEX IF NOT EXISTS idx_children_parent ON children(parent_id);
 CREATE INDEX IF NOT EXISTS idx_malnutrition_child ON malnutrition_cases(child_id);
 CREATE INDEX IF NOT EXISTS idx_alerts_child ON alerts(child_id);

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { getUser, logout, getUserName } from "../utils/auth";
+import { getUser, logout, getUserName, getAuthHeaders } from "../utils/auth";
 import "../styles/Dashboard.css";
 
 function AdminDashboard() {
@@ -20,38 +20,43 @@ function AdminDashboard() {
     loadData();
   }, []);
 
+  const authHeaders = getAuthHeaders();
+
   const loadData = async () => {
     setLoading(true);
     try {
       // Load all users
-      const usersRes = await fetch("http://127.0.0.1:5000/admin/users");
+      const usersRes = await fetch("http://127.0.0.1:5000/admin/users", { headers: authHeaders });
       if (usersRes.ok) {
         const usersData = await usersRes.json();
         setUsers(usersData);
       }
 
       // Load all children
-      const childrenRes = await fetch("http://127.0.0.1:5000/admin/children");
+      const childrenRes = await fetch("http://127.0.0.1:5000/admin/children", { headers: authHeaders });
       if (childrenRes.ok) {
         const childrenData = await childrenRes.json();
         setChildren(childrenData);
       }
 
       // Load all health records
-      const recordsRes = await fetch("http://127.0.0.1:5000/admin/health-records");
+      const recordsRes = await fetch("http://127.0.0.1:5000/admin/health-records", { headers: authHeaders });
       if (recordsRes.ok) {
         const recordsData = await recordsRes.json();
         setHealthRecords(recordsData);
       }
 
       // Load stats
-      const statsRes = await fetch("http://127.0.0.1:5000/admin/stats");
+      const statsRes = await fetch("http://127.0.0.1:5000/admin/stats", { headers: authHeaders });
       if (statsRes.ok) {
         const statsData = await statsRes.json();
         setStats(statsData);
       }
     } catch (error) {
       console.error("Error loading data:", error);
+      alert("Authentication failed. Please login again.");
+      logout();
+      navigate("/");
     }
     setLoading(false);
   };
@@ -66,11 +71,14 @@ function AdminDashboard() {
     
     try {
       const res = await fetch(`http://127.0.0.1:5000/admin/users/${userId}`, {
-        method: "DELETE"
+        method: "DELETE",
+        headers: authHeaders
       });
       if (res.ok) {
         alert("User deleted!");
         loadData();
+      } else {
+        alert("Delete failed - admin access required");
       }
     } catch (error) {
       alert("Error deleting user");
@@ -82,7 +90,8 @@ function AdminDashboard() {
     
     try {
       const res = await fetch(`http://127.0.0.1:5000/children/${childId}`, {
-        method: "DELETE"
+        method: "DELETE",
+        headers: authHeaders
       });
       if (res.ok) {
         alert("Child deleted!");
@@ -325,5 +334,6 @@ function AdminDashboard() {
 }
 
 export default AdminDashboard;
+
 
 
